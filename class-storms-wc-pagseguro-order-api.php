@@ -122,6 +122,32 @@ class Storms_WC_PagSeguro_Order_API
 			)
 		);
 
+		register_rest_field( 'shop_order',
+			'pagseguro_intermediation_rate',
+			array(
+				'get_callback'    => array( $this, 'get_pagseguro_meta_fields_callback' ),
+				'update_callback' => array( $this, 'update_pagseguro_meta_fields_callback' ),
+				'schema'          => array(
+					'description' => __( 'Intermediation Rate', 'woocommerce-pagseguro' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+			)
+		);
+
+		register_rest_field( 'shop_order',
+			'pagseguro_intermediation_fee',
+			array(
+				'get_callback'    => array( $this, 'get_pagseguro_meta_fields_callback' ),
+				'update_callback' => array( $this, 'update_pagseguro_meta_fields_callback' ),
+				'schema'          => array(
+					'description' => __( 'Intermediation Fee', 'woocommerce-pagseguro' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+				),
+			)
+		);
+
 	}
 
 	//<editor-fold desc="PagSeguro Meta Fields">
@@ -136,10 +162,12 @@ class Storms_WC_PagSeguro_Order_API
 	 * @return string
 	 */
 	public function get_pagseguro_meta_fields_callback( $data, $field, $request ) {
+
+		$order = wc_get_order( $data['id'] );
+
 		$meta_field = '';
 		switch ($field) {
 			case 'pagseguro_transaction_id':
-				$order = wc_get_order( $data['id'] );
 				return $order->get_transaction_id();
 				break;
 			case 'pagseguro_payer_email':
@@ -160,7 +188,15 @@ class Storms_WC_PagSeguro_Order_API
 			case 'pagseguro_payment_url':
 				$meta_field = __( 'Payment URL', 'woocommerce-pagseguro' );
 				break;
+			case 'pagseguro_intermediation_rate':
+				$meta_field = __( 'Intermediation Rate', 'woocommerce-pagseguro' );
+				break;
+			case 'pagseguro_intermediation_fee':
+				$meta_field = __( 'Intermediation Fee', 'woocommerce-pagseguro' );
+				break;
 		}
+
+		//\StormsFramework\Helper::debug($order->get_meta($meta_field, true), $meta_field);
 
 		return get_post_meta( $data['id'], $meta_field, true );
 	}
